@@ -1,6 +1,11 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import Header from "@/component/layout/header"
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <>
       <Header />
@@ -18,11 +23,17 @@ export default function Home() {
               Manage everything in one place with our powerful, intuitive platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+              <button 
+                onClick={() => router.push('/events')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
                 Start Planning Now
               </button>
-              <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors duration-200">
-                Watch Demo
+              <button 
+                onClick={() => router.push('/events')}
+                className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors duration-200"
+              >
+                Browse Events
               </button>
             </div>
           </div>
@@ -209,11 +220,17 @@ export default function Home() {
             Join thousands of event professionals who trust EventPro to bring their vision to life.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+            <button 
+              onClick={() => router.push('/signup')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
               Start Free Trial
             </button>
-            <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors duration-200">
-              Schedule Demo
+            <button 
+              onClick={() => router.push('/events')}
+              className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors duration-200"
+            >
+              View Events
             </button>
           </div>
           <p className="text-gray-500 text-sm mt-4">No credit card required • 14-day free trial</p>
