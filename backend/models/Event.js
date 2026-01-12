@@ -104,6 +104,20 @@ const eventSchema = new mongoose.Schema({
       type: String,
       enum: ['registered', 'attended', 'cancelled'],
       default: 'registered'
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['khalti', 'esewa', 'free', 'none'],
+      default: 'none'
+    },
+    paymentReference: {
+      type: String,
+      default: ''
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'cancelled'],
+      default: 'pending'
     }
   }],
   tags: [String],

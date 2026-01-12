@@ -1,6 +1,8 @@
+const sendEmail = require("../utils/sendemail");
 const express = require('express');
 const Event = require('../models/Event');
 const User = require('../models/User');
+const Booking = require('../models/Booking');
 const { auth, isOrganizer } = require('../middleware/auth');
 
 const router = express.Router();
@@ -147,14 +149,76 @@ router.post('/:id/register', auth, async (req, res) => {
       return res.status(400).json({ message: 'Event is full' });
     }
 
-    // Add attendee
-    event.attendees.push({ user: req.userId });
+    const { payment } = req.body;
+    const paymentMeta = payment || {};
+    const requiresPayment = event.price > 0;
+    event.attendees.push({
+      user: req.userId,
+      paymentMethod: paymentMeta.method || (requiresPayment ? 'none' : 'free'),
+      paymentReference: paymentMeta.reference || '',
+      paymentStatus: paymentMeta.status || (requiresPayment ? 'pending' : 'paid')
+    });
     await event.save();
 
     // Add to user's registered events
     await User.findByIdAndUpdate(req.userId, {
       $push: { registeredEvents: event._id }
     });
+
+    const user = await User.findById(req.userId).select('name email');
+    const bookingPayload = {
+      event: event._id,
+      user: req.userId,
+      eventSnapshot: {
+        title: event.title,
+        category: event.category,
+        date: event.date,
+        price: event.price
+      },
+      userSnapshot: {
+        name: user?.name,
+        email: user?.email
+      },
+      paymentMethod: paymentMeta.method || (requiresPayment ? 'none' : 'free'),
+      paymentStatus: paymentMeta.status || (requiresPayment ? 'pending' : 'paid'),
+      paymentReference: paymentMeta.reference || '',
+      transactionId: paymentMeta.transactionId || paymentMeta.reference || ''
+    };
+
+    console.log('Registering booking', {
+      event: event._id.toString(),
+      user: req.userId,
+      amount: bookingPayload.eventSnapshot.price,
+      paymentMethod: bookingPayload.paymentMethod,
+      transactionId: bookingPayload.transactionId
+    });
+    await Booking.findOneAndUpdate(
+      { event: event._id, user: req.userId },
+      bookingPayload,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    console.log('Booking upsert completed', { eventId: event._id.toString(), userId: req.userId });
+    console.log("HELLO WORLD EVENT REGISTERED SUCCESSFULLY BROTHER");
+    // Send confirmation email
+await sendEmail({
+  to: user.email,
+  subject: "Event Registration Confirmation 🎉",
+  html: `
+    <h2>Registration Successful!</h2>
+    <p>Hello <b>${user.name}</b>,</p>
+    <p>You have successfully registered for the event:</p>
+
+    <ul>
+      <li><b>Event:</b> ${event.title}</li>
+      <li><b>Date:</b> ${new Date(event.date).toDateString()}</li>
+      <li><b>Category:</b> ${event.category}</li>
+      <li><b>Price:</b> ${event.price === 0 ? "Free" : `₹${event.price}`}</li>
+    </ul>
+
+    <p>We look forward to seeing you there! 🚀</p>
+    <p><b>Team Event Management</b></p>
+  `
+});
 
     res.json({ message: 'Successfully registered for event' });
   } catch (error) {

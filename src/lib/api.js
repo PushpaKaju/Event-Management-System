@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -47,10 +47,23 @@ export const eventAPI = {
   create: (data) => api.post('/events', data),
   update: (id, data) => api.put(`/events/${id}`, data),
   delete: (id) => api.delete(`/events/${id}`),
-  register: (id) => api.post(`/events/${id}/register`),
+  register: (id, data) => api.post(`/events/${id}/register`, data || {}),
   cancelRegistration: (id) => api.delete(`/events/${id}/register`),
   getUserCreated: () => api.get('/events/user/created'),
   getUserRegistered: () => api.get('/events/user/registered'),
+};
+
+export const paymentAPI = {
+  verifyKhalti: (payload) => api.post('/payments/khalti/verify', payload),
+  initiateKhalti: (payload) => api.post('/payments/khalti/initiate', payload),
+  lookupKhalti: (payload) => api.post('/payments/khalti/lookup', payload),
+  verifyEsewa: (payload) => api.post('/payments/esewa/verify', payload),
+  getEsewaSignature: (payload) => api.post('/payments/esewa/checkout', payload),
+  getEsewaStatus: (payload) => api.post('/payments/esewa/status', payload)
+};
+
+export const bookingAPI = {
+  getForEvent: (eventId) => api.get('/bookings', { params: { eventId } })
 };
 
 // User APIs

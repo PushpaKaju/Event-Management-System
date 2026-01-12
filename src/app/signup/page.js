@@ -11,7 +11,7 @@ export default function SignupPage() {
     name: '',
     email: '',
     password: '',
-    role: 'user'
+    intent: 'attend'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,13 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const response = await authAPI.register(formData);
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        intent: formData.intent
+      };
+      const response = await authAPI.register(payload);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       router.push('/dashboard');
@@ -120,18 +126,18 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="intent" className="block text-sm font-medium text-gray-700 mb-1">
                 I want to
               </label>
               <select
-                id="role"
-                name="role"
-                value={formData.role}
+                id="intent"
+                name="intent"
+                value={formData.intent}
                 onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="user">Attend events</option>
-                <option value="organizer">Organize events</option>
+                <option value="attend">Attend events</option>
+                <option value="organize">Organize events</option>
               </select>
             </div>
           </div>
